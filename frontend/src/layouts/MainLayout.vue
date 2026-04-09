@@ -23,7 +23,6 @@ const notifications = ref([
   { id: 1, kind: 'Curso', text: 'Novo curso publicado: Docker para Desenvolvedores.', read: false },
   { id: 2, kind: 'Usuário', text: 'Lucas Ferreira atualizou o perfil.', read: false },
   { id: 3, kind: 'Inscrição', text: 'Pagamento aprovado para Vue 3 do Zero ao Deploy.', read: false },
-  { id: 4, kind: 'Curso', text: 'Aula extra adicionada em Laravel Profissional.', read: true },
   { id: 5, kind: 'Usuário', text: 'Renata Moura foi promovida para Administrador.', read: false },
 ])
 
