@@ -299,12 +299,12 @@ function logout() {
       v-if="editRow"
       class="modal d-block bg-dark bg-opacity-50"
       tabindex="-1"
-      style="position: fixed; inset: 0; z-index: 1050"
+      style="position: fixed; inset: 0; z-index: 1050; overflow-y: auto; -webkit-overflow-scrolling: touch"
       role="dialog"
       aria-modal="true"
       :aria-labelledby="'modal-edit-title'"
     >
-      <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h2 id="modal-edit-title" class="h5 modal-title">Editar inscrição nº {{ editRow.id }}</h2>
@@ -398,14 +398,23 @@ function logout() {
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   z-index: 1200;
-  display: grid;
-  place-items: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 .delete-confirm-modal {
   width: min(420px, 100%);
   border-radius: 0.75rem;
+  margin: 1.5rem auto;
+  max-height: calc(100vh - 3rem);
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .delete-confirm-icon {

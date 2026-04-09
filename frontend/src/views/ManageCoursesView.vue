@@ -779,14 +779,23 @@ onMounted(() => {
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   z-index: 1200;
-  display: grid;
-  place-items: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 .course-modal {
   width: min(560px, 100%);
   border-radius: 0.75rem;
+  margin: 1.5rem auto;
+  max-height: calc(100vh - 3rem);
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .course-form-banner-preview {
@@ -802,5 +811,10 @@ onMounted(() => {
 .course-delete-modal {
   width: min(400px, 100%);
   border-radius: 0.75rem;
+  margin: 1.5rem auto;
+  max-height: calc(100vh - 3rem);
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 </style>
