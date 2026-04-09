@@ -24,7 +24,7 @@ A API REST está versionada em `/api/v1`. O Nginx expõe a aplicação Laravel e
 marcasite-cursos/
 ├── backend/          # Laravel (API, models, migrations, testes PHPUnit)
 ├── frontend/         # Vue 3 + Vite (SPA)
-├── docker/           # Dockerfiles (nginx, php, mysql) e configs
+├── docker/           # Dockerfiles (nginx, php) e configs (MySQL oficial via imagem mysql:8.0)
 ├── scripts/          # Automação (ex.: dev-start.sh)
 ├── db/               # Volume/dados MySQL (referência; dados em docker/mysql/data)
 ├── docker-compose.yml
