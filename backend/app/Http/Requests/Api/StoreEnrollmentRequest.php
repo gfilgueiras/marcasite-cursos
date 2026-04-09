@@ -36,7 +36,13 @@ class StoreEnrollmentRequest extends FormRequest
         return [
             'course_id' => ['required', 'integer', Rule::exists('courses', 'id')->where('active', true)],
             'name' => ['required', 'string', 'min:2', 'max:255'],
-            'email' => ['required', 'string', 'email:rfc', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'email:rfc',
+                'regex:/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/',
+                'max:255',
+            ],
             'phone' => ['required', 'string', 'max:32', new ValidBrazilianPhone],
             'document' => ['required', 'string', 'size:11', new ValidCpf],
         ];

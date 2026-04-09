@@ -72,6 +72,25 @@ class PublicEnrollmentTest extends TestCase
         $this->assertSame(0, Enrollment::query()->count());
     }
 
+    public function test_rejects_email_without_domain_tld(): void
+    {
+        $course = Course::factory()->create([
+            'active' => true,
+            'price_cents' => 15_000,
+        ]);
+
+        $response = $this->postJson('/api/v1/enrollments', [
+            'course_id' => $course->id,
+            'name' => 'João Teste',
+            'email' => 'asasd@asdasd',
+            'phone' => '11999990000',
+            'document' => '52998224725',
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertSame(0, Enrollment::query()->count());
+    }
+
     public function test_rejects_enrollment_when_period_ended(): void
     {
         $course = Course::factory()->create([
