@@ -654,7 +654,8 @@ watch(selectedUserId, () => {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  min-width: 300px;
+  min-width: 0;
+  width: min(92vw, 420px);
   max-width: min(92vw, 420px);
   border-radius: 0.65rem;
   padding: 0.7rem 0.85rem;

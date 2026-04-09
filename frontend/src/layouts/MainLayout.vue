@@ -206,6 +206,8 @@ function closeSidebar() {
 }
 
 function openSidebar() {
+  closeDropdown()
+  closeNotifications()
   sidebarOpen.value = true
 }
 </script>
@@ -310,11 +312,7 @@ function openSidebar() {
           >
             <i class="bi bi-list" />
           </button>
-          <div
-            ref="searchRoot"
-            class="search-wrap flex-grow-1"
-            style="min-width: 12rem; max-width: 28rem"
-          >
+          <div ref="searchRoot" class="search-wrap search-wrap--toolbar flex-grow-1">
             <i class="bi bi-search search-wrap__icon" aria-hidden="true" />
             <input
               v-model="searchQuery"
@@ -451,6 +449,7 @@ function openSidebar() {
   --sidebar-bg: #e8eaed;
   --page-bg: #f1f3f5;
   --sidebar-width: 260px;
+  min-width: 0;
 }
 
 .app-sidebar {
@@ -499,15 +498,28 @@ function openSidebar() {
 
 .app-main {
   background: var(--page-bg);
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .app-topbar {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  min-width: 0;
+}
+
+.app-content {
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .search-wrap {
   position: relative;
   z-index: 1080;
+}
+
+.search-wrap--toolbar {
+  min-width: 12rem;
+  max-width: 28rem;
 }
 
 .search-wrap__icon {
@@ -692,7 +704,7 @@ function openSidebar() {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
-  z-index: 1040;
+  z-index: 1090;
 }
 
 @media (max-width: 767.98px) {
@@ -704,10 +716,17 @@ function openSidebar() {
     transform: translateX(-100%);
     transition: transform 0.2s ease;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+    z-index: 1100;
   }
 
   .app-sidebar.is-open {
     transform: translateX(0);
+  }
+
+  .search-wrap--toolbar {
+    min-width: 0;
+    max-width: none;
+    flex: 1 1 0%;
   }
 }
 </style>
