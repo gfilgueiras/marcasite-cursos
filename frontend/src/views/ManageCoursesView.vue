@@ -138,6 +138,25 @@ function statusClass(active) {
   return active ? 'text-success fw-semibold' : 'text-danger fw-semibold'
 }
 
+/** Apenas dígitos e uma vírgula; no máximo 2 casas decimais (ex.: 99,90). */
+function sanitizePriceReaisInput(raw) {
+  const s = String(raw || '').replace(/[^\d,]/g, '')
+  const ci = s.indexOf(',')
+  if (ci === -1) {
+    return s.replace(/\D/g, '')
+  }
+  const intPart = s.slice(0, ci).replace(/\D/g, '')
+  const decPart = s.slice(ci + 1).replace(/\D/g, '').slice(0, 2)
+  if (decPart.length > 0) {
+    return `${intPart},${decPart}`
+  }
+  return `${intPart},`
+}
+
+function onPriceReaisInput(e) {
+  courseForm.price_reais = sanitizePriceReaisInput(e.target.value)
+}
+
 function parseReaisToCents(s) {
   let t = String(s).trim().replace(/\s/g, '')
   if (!t) return null
@@ -666,12 +685,14 @@ onMounted(() => {
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Valor (R$) *</label>
               <input
-                v-model="courseForm.price_reais"
+                :value="courseForm.price_reais"
                 type="text"
                 class="form-control"
                 :class="{ 'is-invalid': fieldErrors.price_reais }"
                 placeholder="ex.: 99,90"
                 inputmode="decimal"
+                autocomplete="off"
+                @input="onPriceReaisInput"
                 @blur="validateForm"
               />
               <div v-if="fieldErrors.price_reais" class="invalid-feedback d-block">{{ fieldErrors.price_reais }}</div>
