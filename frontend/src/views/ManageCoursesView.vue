@@ -140,7 +140,14 @@ function statusClass(active) {
 
 /** Apenas dígitos e uma vírgula; no máximo 2 casas decimais (ex.: 99,90). */
 function sanitizePriceReaisInput(raw) {
-  const s = String(raw || '').replace(/[^\d,]/g, '')
+  let s = String(raw ?? '').trim()
+  if (!s.includes(',')) {
+    const dot = s.indexOf('.')
+    if (dot !== -1 && s.indexOf('.', dot + 1) === -1) {
+      s = `${s.slice(0, dot)},${s.slice(dot + 1)}`
+    }
+  }
+  s = s.replace(/[^\d,]/g, '')
   const ci = s.indexOf(',')
   if (ci === -1) {
     return s.replace(/\D/g, '')
@@ -154,11 +161,77 @@ function sanitizePriceReaisInput(raw) {
 }
 
 function onPriceReaisInput(e) {
-  courseForm.price_reais = sanitizePriceReaisInput(e.target.value)
+  const el = e.target
+  const next = sanitizePriceReaisInput(el.value)
+  el.value = next
+  courseForm.price_reais = next
+}
+
+/** Evita 3ª casa decimal antes de inserir (complementa o sanitize no @input). */
+function onPriceReaisBeforeInput(e) {
+  const it = e.inputType || ''
+  if (it === 'insertFromPaste' || it === 'insertCompositionText') return
+  if (it !== 'insertText' || e.data == null) return
+  if (!/[0-9,]/.test(e.data)) {
+    e.preventDefault()
+    return
+  }
+  const el = e.target
+  const start = el.selectionStart ?? 0
+  const end = el.selectionEnd ?? 0
+  const val = el.value
+  const next = val.slice(0, start) + e.data + val.slice(end)
+  const sanitized = sanitizePriceReaisInput(next)
+  const prevSan = sanitizePriceReaisInput(val)
+  if (sanitized === prevSan && start === end) {
+    e.preventDefault()
+  }
+}
+
+function isEditingKeyNav(e) {
+  if (e.ctrlKey || e.metaKey || e.altKey) return true
+  const nav = [
+    'Backspace',
+    'Delete',
+    'Tab',
+    'Escape',
+    'Enter',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+    'Home',
+    'End',
+  ]
+  return nav.includes(e.key)
+}
+
+/** Bloqueia teclas inválidas; cola ainda passa por sanitize no @input. */
+function onPriceReaisKeydown(e) {
+  if (isEditingKeyNav(e)) return
+  if (e.key.length > 1) return
+  if (/[0-9,]/.test(e.key)) return
+  e.preventDefault()
+}
+
+/** Apenas dígitos (vagas). */
+function sanitizeMaxSeatsInput(raw) {
+  return String(raw || '').replace(/\D/g, '')
+}
+
+function onMaxSeatsInput(e) {
+  courseForm.max_seats = sanitizeMaxSeatsInput(e.target.value)
+}
+
+function onMaxSeatsKeydown(e) {
+  if (isEditingKeyNav(e)) return
+  if (e.key.length > 1) return
+  if (/[0-9]/.test(e.key)) return
+  e.preventDefault()
 }
 
 function parseReaisToCents(s) {
-  let t = String(s).trim().replace(/\s/g, '')
+  let t = String(sanitizePriceReaisInput(s)).trim().replace(/\s/g, '')
   if (!t) return null
   if (t.includes(',')) {
     t = t.replace(/\./g, '').replace(',', '.')
@@ -692,6 +765,8 @@ onMounted(() => {
                 placeholder="ex.: 99,90"
                 inputmode="decimal"
                 autocomplete="off"
+                @beforeinput="onPriceReaisBeforeInput"
+                @keydown="onPriceReaisKeydown"
                 @input="onPriceReaisInput"
                 @blur="validateForm"
               />
@@ -730,12 +805,14 @@ onMounted(() => {
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Vagas (máx.)</label>
               <input
-                v-model="courseForm.max_seats"
-                type="number"
-                min="1"
+                :value="courseForm.max_seats"
+                type="text"
                 class="form-control"
                 placeholder="Em branco = ilimitado"
                 inputmode="numeric"
+                autocomplete="off"
+                @keydown="onMaxSeatsKeydown"
+                @input="onMaxSeatsInput"
               />
             </div>
           </div>
