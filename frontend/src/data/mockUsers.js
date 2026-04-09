@@ -1,0 +1,23 @@
+/** Lista de usuários da tela /usuarios (mock até existir API). */
+export const mockPlatformUsers = [
+  { id: 1, name: 'Ana Paula Rocha', email: 'ana.rocha@marcasite.com', type: 'Administrador', active: true },
+  { id: 2, name: 'Bruno Almeida', email: 'bruno.almeida@marcasite.com', type: 'Editor', active: true },
+  { id: 3, name: 'Carla Mendes', email: 'carla.mendes@marcasite.com', type: 'Instrutor', active: true },
+  { id: 4, name: 'Diego Ramos', email: 'diego.ramos@marcasite.com', type: 'Aluno', active: false },
+  { id: 5, name: 'Elaine Costa', email: 'elaine.costa@marcasite.com', type: 'Aluno', active: true },
+  { id: 6, name: 'Felipe Nunes', email: 'felipe.nunes@marcasite.com', type: 'Instrutor', active: true },
+  { id: 7, name: 'Gabriela Souza', email: 'gabriela.souza@marcasite.com', type: 'Editor', active: true },
+  { id: 8, name: 'Henrique Silva', email: 'henrique.silva@marcasite.com', type: 'Aluno', active: false },
+  { id: 9, name: 'Isabela Martins', email: 'isabela.martins@marcasite.com', type: 'Aluno', active: true },
+  { id: 10, name: 'Joao Pedro Lima', email: 'joao.lima@marcasite.com', type: 'Administrador', active: true },
+  { id: 11, name: 'Karen Dias', email: 'karen.dias@marcasite.com', type: 'Instrutor', active: true },
+  { id: 12, name: 'Lucas Ferreira', email: 'lucas.ferreira@marcasite.com', type: 'Aluno', active: true },
+  { id: 13, name: 'Marina Teixeira', email: 'marina.teixeira@marcasite.com', type: 'Editor', active: false },
+  { id: 14, name: 'Nicolas Araujo', email: 'nicolas.araujo@marcasite.com', type: 'Aluno', active: true },
+  { id: 15, name: 'Olivia Barros', email: 'olivia.barros@marcasite.com', type: 'Instrutor', active: true },
+  { id: 16, name: 'Paulo Henrique', email: 'paulo.henrique@marcasite.com', type: 'Aluno', active: true },
+  { id: 17, name: 'Renata Moura', email: 'renata.moura@marcasite.com', type: 'Administrador', active: true },
+  { id: 18, name: 'Sergio Castro', email: 'sergio.castro@marcasite.com', type: 'Aluno', active: false },
+  { id: 19, name: 'Talita Ribeiro', email: 'talita.ribeiro@marcasite.com', type: 'Editor', active: true },
+  { id: 20, name: 'Vinicius Melo', email: 'vinicius.melo@marcasite.com', type: 'Instrutor', active: true },
+]

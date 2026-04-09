@@ -1,0 +1,92 @@
+services:
+  mysql:
+    image: cloudivebr/aflow_mysql:8.0
+    build:
+      context: ./docker/mysql
+      dockerfile: Dockerfile
+      args:
+        DOCKER_MYSQL_IMAGE_NAME: cloudivebr/aflow_mysql
+        DOCKER_MYSQL_IMAGE_TAG: "8.0"
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/configs/my.cnf:/etc/my.cnf
+      - ./docker/mysql/data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: "marcasite"
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_USER: "aflow"
+      MYSQL_PASSWORD: "aflow"
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: backend
+    volumes:
+      - ./backend:/var/www/html
+      - ./.env:/var/www/html/.env:ro
+    working_dir: /var/www/html
+    networks:
+      - app_network
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_DATABASE: marcasite
+      DB_USERNAME: aflow
+      DB_PASSWORD: aflow
+
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend:/var/www/html:ro
+    networks:
+      - app_network
+    depends_on:
+      - backend
+
+  frontend:
+    image: node:20-bookworm
+    container_name: frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - ./.env:/app/.env:ro
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    networks:
+      - app_network
+
+  # Stripe CLI (modo teste): encaminha webhooks para o Nginx na rede Docker (http://nginx/...).
+  # Não use localhost:8080 aqui: dentro do container isso não aponta para o Nginx.
+  # Uso: make stripe-listen  OU  docker compose --profile stripe run --rm -it stripe-cli
+  # Copie o whsec_... do output para STRIPE_SANDBOX_WEBHOOK_SECRET no .env da raiz e reinicie o backend.
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    container_name: stripe-cli
+    profiles:
+      - stripe
+    networks:
+      - app_network
+    depends_on:
+      - nginx
+    environment:
+      STRIPE_API_KEY: ${STRIPE_SANDBOX_SECRET_KEY}
+    command:
+      - listen
+      - --forward-to
+      - http://nginx/api/v1/webhooks/stripe
+
+networks:
+  app_network:
+    driver: bridge
