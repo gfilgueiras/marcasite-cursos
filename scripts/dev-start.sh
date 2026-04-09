@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sobe stack Docker, injeta whsec no .env (Stripe CLI), migrate, seed e reinicia o backend.
-# Mostra o passo atual; detalhes dos comandos ficam ocultos; no fim, banner com o link do site.
+# Mostra o passo atual e a saída dos comandos; no fim, banner com o link do site.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -17,7 +17,7 @@ step() {
 MYSQL_DATA_DIR="${ROOT}/docker/mysql/data"
 
 step "Parando containers Docker (libera o volume MySQL)…"
-(docker compose --profile stripe down 2>/dev/null) || true
+(docker compose --profile stripe down 2) || true
 
 step "Apagando todo o conteúdo de docker/mysql/data…"
 rm -rf "$MYSQL_DATA_DIR"
@@ -40,7 +40,7 @@ fi
 
 if [[ -n "${WHSEC:-}" ]]; then
   step "Atualizando STRIPE_SANDBOX_WEBHOOK_SECRET no .env…"
-  if grep -q '^STRIPE_SANDBOX_WEBHOOK_SECRET=' "$ROOT/.env" 2>/dev/null; then
+  if grep -q '^STRIPE_SANDBOX_WEBHOOK_SECRET=' "$ROOT/.env"; then
     if [[ "$(uname)" == "Darwin" ]]; then
       sed -i '' "s|^STRIPE_SANDBOX_WEBHOOK_SECRET=.*|STRIPE_SANDBOX_WEBHOOK_SECRET=${WHSEC}|" "$ROOT/.env"
     else
@@ -54,7 +54,13 @@ else
 fi
 
 step "Baixando imagens, construindo e subindo containers (MySQL, API, Nginx, frontend, Stripe)…"
-Q docker compose --profile stripe up -d --build
+docker compose --profile stripe up -d --build
+
+step "Instalando dependências PHP (Composer)…"
+docker compose exec -T backend composer install --no-interaction --prefer-dist || {
+  echo "Erro ao rodar composer install. Ver: docker compose logs backend"
+  exit 1
+}
 
 step "Aguardando o MySQL ficar pronto…"
 for _ in $(seq 1 45); do
@@ -65,25 +71,25 @@ for _ in $(seq 1 45); do
 done
 
 step "Executando migrations…"
-docker compose exec -T backend php artisan migrate --force >/dev/null 2>&1 || {
-  echo "Erro ao executar migrations. Ver: docker compose logs backend" >&2
+docker compose exec -T backend php artisan migrate --force || {
+  echo "Erro ao executar migrations. Ver: docker compose logs backend" 
   exit 1
 }
 
 step "Executando seeders…"
-docker compose exec -T backend php artisan db:seed --force >/dev/null 2>&1 || {
-  echo "Erro ao executar seeders. Ver: docker compose logs backend" >&2
+docker compose exec -T backend php artisan db:seed --force || {
+  echo "Erro ao executar seeders. Ver: docker compose logs backend" 
   exit 1
 }
 
 step "Limpando cache de configuração…"
-Q docker compose exec -T backend php artisan config:clear
+docker compose exec -T backend php artisan config:clear
 
 step "Reiniciando backend e nginx…"
-Q docker compose restart backend nginx
+docker compose restart backend nginx
 
 SITE_URL="http://localhost:5173"
-if [[ -f "$ROOT/.env" ]] && grep -q '^FRONTEND_URL=' "$ROOT/.env" 2>/dev/null; then
+if [[ -f "$ROOT/.env" ]] && grep -q '^FRONTEND_URL=' "$ROOT/.env"; then
   SITE_URL="$(grep '^FRONTEND_URL=' "$ROOT/.env" | head -1 | cut -d= -f2- | tr -d '\r' | sed "s/^[\"']//;s/[\"']$//")"
   [[ -z "$SITE_URL" ]] && SITE_URL="http://localhost:5173"
 fi
